@@ -23,15 +23,15 @@ public struct InAppPurchaseView: View {
     /// the top toolbar.
     private let includeDismissButton: Bool
 
+    /// The order that content should be displayed in the purchase view.
+    private let contentOrder: [InAppPurchaseViewContent]
+
     /// An optional action to perform when a transaction is completed. This is separate
     /// to the action set in `InAppPurchaseKitConfiguration` but both
     /// will be performed. If an action is set, you will need to also dismiss the view. This
     /// is handled automatically when no action is set.
     private let onPurchaseAction: (@Sendable () -> Void)?
 
-    /// The order that content should be displayed in the purchase view.
-    private let contentOrder: [InAppPurchaseViewContent]
-    
     /// The current in-app purchase tier that has been selected in the list.
     @State private var selectedTier: PurchaseTier?
 
@@ -54,13 +54,13 @@ public struct InAppPurchaseView: View {
     public init(
         includeNavigationStack: Bool = true,
         includeDismissButton: Bool = true,
-        onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil,
-        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder
+        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder,
+        onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
     ) {
         self.includeNavigationStack = includeNavigationStack
         self.includeDismissButton = includeDismissButton
-        self.onPurchaseAction = onPurchaseAction
         self.contentOrder = contentOrder
+        self.onPurchaseAction = onPurchaseAction
     }
 
     public var body: some View {
@@ -248,7 +248,7 @@ public struct InAppPurchaseView: View {
     InAppPurchaseView(
         contentOrder: [
             .header,
-            .custom(AnyView(
+            .custom {
                 VStack(spacing: 8) {
                     Text("Limited-time discount")
                         .font(.headline)
@@ -260,7 +260,7 @@ public struct InAppPurchaseView: View {
                 .padding()
                 .background(.thinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-            )),
+            },
             .tiers,
             .features,
             .additionalOptions

@@ -22,4 +22,10 @@ public enum InAppPurchaseViewContent {
             .additionalOptions
         ]
     }
+
+    public static func custom<Content: View>(
+        @ViewBuilder _ content: () -> Content
+    ) -> InAppPurchaseViewContent {
+        .custom(AnyView(content()))
+    }
 }

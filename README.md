@@ -273,8 +273,8 @@ This is a view containing all of the in-app purchase options. It can be created 
 InAppPurchaseView(
     includeNavigationStack: true,
     includeDismissButton: true,
-    onPurchase onPurchaseAction: nil,
-    contentOrder: InAppPurchaseViewContent.defaultOrder
+    contentOrder: InAppPurchaseViewContent.defaultOrder,
+    onPurchase onPurchaseAction: nil
 )
 ```
 
@@ -286,10 +286,10 @@ The order of content in the purchase view can also be customised. Supports reord
 InAppPurchaseView(
     contentOrder: [
         .header,
-        .custom(AnyView(
+        .custom {
             Text("Limited-time discount")
                 .font(.headline)
-        )),
+        },
         .tiers,
         .features,
         .additionalOptions
@@ -355,7 +355,7 @@ This is a view that displays a locked view on a widget. It can be created like s
 ```swift
 LockedInAppPurchaseWidgetView(
     configuration: configuration,
-    learnMoreURL: URL(string: "my://subscribe")!,
+    learnMoreURL: URL(string: "myapp://subscribe")!,
     tint: .green
 )
 ```
