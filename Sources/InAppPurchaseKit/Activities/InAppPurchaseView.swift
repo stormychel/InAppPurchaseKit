@@ -28,6 +28,9 @@ public struct InAppPurchaseView: View {
     /// will be performed. If an action is set, you will need to also dismiss the view. This
     /// is handled automatically when no action is set.
     private let onPurchaseAction: (@Sendable () -> Void)?
+
+    /// The order that content should be displayed in the purchase view.
+    private let contentOrder: [InAppPurchaseViewContent]
     
     /// The current in-app purchase tier that has been selected in the list.
     @State private var selectedTier: PurchaseTier?
@@ -46,14 +49,18 @@ public struct InAppPurchaseView: View {
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   will be performed. If an action is set, you will need to also dismiss the view. This
     ///   is handled automatically when no action is set. Defaults to `nil`.
+    ///   - contentOrder: The order that content should be displayed in the purchase view.
+    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     public init(
         includeNavigationStack: Bool = true,
         includeDismissButton: Bool = true,
-        onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
+        onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil,
+        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder
     ) {
         self.includeNavigationStack = includeNavigationStack
         self.includeDismissButton = includeDismissButton
         self.onPurchaseAction = onPurchaseAction
+        self.contentOrder = contentOrder
     }
 
     public var body: some View {
@@ -125,27 +132,8 @@ public struct InAppPurchaseView: View {
     private var subscriptionViewContents: some View {
         ScrollView {
             VStack(spacing: SizingConstants.mainSpacing) {
-                InAppPurchaseHeaderView(
-                    configuration: inAppPurchase.configuration
-                )
-                .frame(maxWidth: .infinity)
-
-                TiersView(
-                    selectedTier: $selectedTier,
-                    ignorePurchaseState: $ignorePurchaseState
-                )
-
-                VStack(spacing: SizingConstants.mainSpacing / 2) {
-                    Group {
-                        Divider()
-                        FeaturesView(inAppPurchase.configuration.features)
-                        Divider()
-                    }
-                    .frame(maxWidth: SizingConstants.mainContentWidth)
-
-                    AdditionalOptionsView(
-                        ignorePurchaseState: $ignorePurchaseState
-                    )
+                ForEach(contentOrder.indices, id: \.self) { index in
+                    renderView(for: contentOrder[index])
                 }
             }
             .frame(maxWidth: .infinity)
@@ -157,6 +145,41 @@ public struct InAppPurchaseView: View {
             #elseif os(tvOS) || os(watchOS)
             .padding()
             #endif
+        }
+    }
+
+    @ViewBuilder
+    private func renderView(for content: InAppPurchaseViewContent) -> some View {
+        switch content {
+        case .header:
+            InAppPurchaseHeaderView(
+                configuration: inAppPurchase.configuration
+            )
+            .frame(maxWidth: .infinity)
+
+        case .tiers:
+            TiersView(
+                selectedTier: $selectedTier,
+                ignorePurchaseState: $ignorePurchaseState
+            )
+
+        case .features:
+            VStack(spacing: SizingConstants.mainSpacing / 2) {
+                Group {
+                    Divider()
+                    FeaturesView(inAppPurchase.configuration.features)
+                    Divider()
+                }
+            }
+            .frame(maxWidth: SizingConstants.mainContentWidth)
+
+        case .additionalOptions:
+            AdditionalOptionsView(
+                ignorePurchaseState: $ignorePurchaseState
+            )
+
+        case .custom(let customContent):
+            customContent
         }
     }
 
@@ -217,4 +240,31 @@ public struct InAppPurchaseView: View {
 
     InAppPurchaseView()
         .environment(inAppPurchase)
+}
+
+#Preview("InAppPurchaseView+CustomContent") {
+    let inAppPurchase = InAppPurchaseKit.configure(with: .example)
+
+    InAppPurchaseView(
+        contentOrder: [
+            .header,
+            .custom(AnyView(
+                VStack(spacing: 8) {
+                    Text("Limited-time discount")
+                        .font(.headline)
+                    Text("Save 20% with App Store Code XYZ")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.thinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            )),
+            .tiers,
+            .features,
+            .additionalOptions
+        ]
+    )
+    .environment(inAppPurchase)
 }
