@@ -96,4 +96,13 @@ public enum PurchaseTier: Identifiable, Hashable, Sendable {
             )
         }
     }
+
+    var isSubscription: Bool {
+        switch self {
+        case .weekly(_), .monthly(_), .yearly(_):
+            return true
+        case .lifetime(_):
+            return false
+        }
+    }
 }

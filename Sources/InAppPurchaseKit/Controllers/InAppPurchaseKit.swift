@@ -112,12 +112,14 @@ public final class InAppPurchaseKit: NSObject {
         let products = await fetchProducts()
         let purchasedTiers = await fetchPurchasedTiers()
         let legacyUser = await fetchLegacyUserState()
+        let expiredUser = await fetchExpiredUserState(purchasedTiers: purchasedTiers)
 
         productsLoadState = .loaded(
             products.products,
             products.introOffers,
             purchasedTiers,
-            legacyUser
+            legacyUser,
+            expiredUser
         )
 
         if let updatedPurchasesCompletionBlock = configuration.updatedPurchasesCompletionBlock {
@@ -172,12 +174,30 @@ public final class InAppPurchaseKit: NSObject {
 
         let transaction = try checkVerified(result)
 
+        return transactionIsActive(transaction)
+    }
+
+    /// Checks whether a transaction currently grants access.
+    /// - Parameter transaction: The StoreKit transaction to check.
+    /// - Returns: A `Bool` indicating whether the transaction is active.
+    private func transactionIsActive(_ transaction: Transaction) -> Bool {
         if let expirationDate = transaction.expirationDate,
            expirationDate < .now {
             return false
         } else {
             return transaction.revocationDate == nil && !transaction.isUpgraded
         }
+    }
+
+    /// Checks whether a transaction represents an expired subscription.
+    /// - Parameter transaction: The StoreKit transaction to check.
+    /// - Returns: A `Bool` indicating whether the transaction is an expired subscription.
+    private func transactionIsExpiredSubscription(_ transaction: Transaction) -> Bool {
+        guard let expirationDate = transaction.expirationDate else {
+            return false
+        }
+
+        return expirationDate < .now && transaction.revocationDate == nil && !transaction.isUpgraded
     }
     
     /// Fetches a StoreKit product based on a tier.
@@ -345,6 +365,33 @@ public final class InAppPurchaseKit: NSObject {
         }
     }
 
+    /// Returns a `Bool` based on whether the user previously had a subscription that has now expired.
+    /// - Parameter purchasedTiers: The tiers that are currently active.
+    /// - Returns: A `Bool` indicating whether they are an expired user.
+    private func fetchExpiredUserState(purchasedTiers: Set<PurchaseTier>) async -> Bool {
+        guard purchasedTiers.isEmpty else {
+            return false
+        }
+
+        for tier in configuration.tiers.orderedTiers {
+            guard tier.isSubscription else {
+                continue
+            }
+
+            for id in tier.tierIDs {
+                guard let result = await Transaction.latest(for: id),
+                      let transaction = try? checkVerified(result),
+                      transactionIsExpiredSubscription(transaction) else {
+                    continue
+                }
+
+                return true
+            }
+        }
+
+        return false
+    }
+
 
     // MARK: - Tiers
     
@@ -455,13 +502,13 @@ public final class InAppPurchaseKit: NSObject {
         var purchasedTiers: Set<PurchaseTier> = []
 
         switch productsLoadState {
-        case .loaded(_, _, let tiers, _):
+        case .loaded(_, _, let tiers, _, _):
             purchasedTiers = tiers
         default:
             purchasedTiers = []
         }
 
-        if transaction.revocationDate == nil {
+        if transactionIsActive(transaction) {
             if let tier = configuration.tiers.orderedTiers.first(where: {
                 $0.tierIDs.contains(transaction.productID)
             }) {
@@ -477,13 +524,16 @@ public final class InAppPurchaseKit: NSObject {
             }
         }
 
+        let expiredUser = await fetchExpiredUserState(purchasedTiers: purchasedTiers)
+
         switch productsLoadState {
-        case .loaded(let products, let introOffers, _, let legacyUser):
+        case .loaded(let products, let introOffers, _, let legacyUser, _):
             productsLoadState = .loaded(
                 products,
                 introOffers,
                 purchasedTiers,
-                legacyUser
+                legacyUser,
+                expiredUser
             )
         default:
             break
