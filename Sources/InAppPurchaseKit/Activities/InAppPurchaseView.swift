@@ -45,12 +45,12 @@ public struct InAppPurchaseView: View {
     ///   its own `NavigationStack`. Defaults to `true`.
     ///   - includeDismissButton: A `Bool` indicating whether the purchase view should be dismissed from
     ///   the top toolbar. Defaults to `true`.
+    ///   - contentOrder: The order that content should be displayed in the purchase view.
+    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     ///   - onPurchaseAction: An optional action to perform when a transaction is completed. This is separate
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   will be performed. If an action is set, you will need to also dismiss the view. This
     ///   is handled automatically when no action is set. Defaults to `nil`.
-    ///   - contentOrder: The order that content should be displayed in the purchase view.
-    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     public init(
         includeNavigationStack: Bool = true,
         includeDismissButton: Bool = true,

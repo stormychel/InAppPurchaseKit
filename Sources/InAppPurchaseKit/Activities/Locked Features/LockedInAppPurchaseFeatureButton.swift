@@ -55,12 +55,18 @@ public struct LockedInAppPurchaseFeatureButton: View {
         #endif
         #if os(tvOS)
         .fullScreenCover(isPresented: $showingPurchaseSheet) {
-            InAppPurchaseView(onPurchase: configuration.onPurchaseAction)
-                .background(Material.regular)
+            InAppPurchaseView(
+                contentOrder: configuration.contentOrder,
+                onPurchase: configuration.onPurchaseAction
+            )
+            .background(Material.regular)
         }
         #else
         .sheet(isPresented: $showingPurchaseSheet) {
-            InAppPurchaseView(onPurchase: configuration.onPurchaseAction)
+            InAppPurchaseView(
+                contentOrder: configuration.contentOrder,
+                onPurchase: configuration.onPurchaseAction
+            )
         }
         #endif
     }

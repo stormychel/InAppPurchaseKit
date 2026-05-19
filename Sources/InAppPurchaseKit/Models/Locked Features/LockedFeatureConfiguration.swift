@@ -24,6 +24,9 @@ public struct LockedFeatureConfiguration: Sendable {
     /// A `Bool` indicating whether legacy users should have access to the feature.
     public let enableIfLegacyUser: Bool
 
+    /// The order that content should be displayed in the purchase view.
+    public let contentOrder: [InAppPurchaseViewContent]
+
     /// An optional action to perform when a transaction is completed. This is separate
     /// to the action set in `InAppPurchaseKitConfiguration` but both
     /// will be performed. If an action is set, you will need to also dismiss the view. This
@@ -36,6 +39,8 @@ public struct LockedFeatureConfiguration: Sendable {
     ///   - systemImage: A `String` containing the system image name.
     ///   - titleColor: The `Color` to use for the title.
     ///   - enableIfLegacyUser: <#enableIfLegacyUser description#>
+    ///   - contentOrder: The order that content should be displayed in the purchase view.
+    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     ///   - onPurchaseAction: An optional action to perform when a transaction is completed. This is separate
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   will be performed. If an action is set, you will need to also dismiss the view. This
@@ -45,6 +50,7 @@ public struct LockedFeatureConfiguration: Sendable {
         systemImage: String,
         titleColor: Color = Color.primary,
         enableIfLegacyUser: Bool = false,
+        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder,
         onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
     ) {
         self.titleKey = titleKey
@@ -52,6 +58,7 @@ public struct LockedFeatureConfiguration: Sendable {
         self.systemImage = systemImage
         self.titleColor = titleColor
         self.enableIfLegacyUser = enableIfLegacyUser
+        self.contentOrder = contentOrder
         self.onPurchaseAction = onPurchaseAction
     }
     
@@ -60,6 +67,8 @@ public struct LockedFeatureConfiguration: Sendable {
     ///   - titleKey: A `LocalizedStringKey` to use as the title.
     ///   - titleColor: The `Color` to use for the title.
     ///   - enableIfLegacyUser: A `Bool` indicating whether legacy users should have access to the feature.
+    ///   - contentOrder: The order that content should be displayed in the purchase view.
+    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     ///   - onPurchaseAction: An optional action to perform when a transaction is completed. This is separate
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   will be performed. If an action is set, you will need to also dismiss the view. This
@@ -68,6 +77,7 @@ public struct LockedFeatureConfiguration: Sendable {
         _ titleKey: LocalizedStringKey,
         titleColor: Color = Color.primary,
         enableIfLegacyUser: Bool = false,
+        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder,
         onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
     ) {
         self.titleKey = titleKey
@@ -75,6 +85,7 @@ public struct LockedFeatureConfiguration: Sendable {
         self.systemImage = nil
         self.titleColor = titleColor
         self.enableIfLegacyUser = enableIfLegacyUser
+        self.contentOrder = contentOrder
         self.onPurchaseAction = onPurchaseAction
     }
 }
@@ -86,6 +97,8 @@ extension LockedFeatureConfiguration {
     ///   - systemImage: A `String` containing the system image name.
     ///   - titleColor: The `Color` to use for the title.
     ///   - enableIfLegacyUser: A `Bool` indicating whether legacy users should have access to the feature.
+    ///   - contentOrder: The order that content should be displayed in the purchase view.
+    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     ///   - onPurchaseAction: An optional action to perform when a transaction is completed. This is separate
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   will be performed. If an action is set, you will need to also dismiss the view. This
@@ -95,6 +108,7 @@ extension LockedFeatureConfiguration {
         systemImage: String,
         titleColor: Color = Color.primary,
         enableIfLegacyUser: Bool = false,
+        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder,
         onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
     ) {
         self.titleKey = nil
@@ -102,6 +116,7 @@ extension LockedFeatureConfiguration {
         self.systemImage = systemImage
         self.titleColor = titleColor
         self.enableIfLegacyUser = enableIfLegacyUser
+        self.contentOrder = contentOrder
         self.onPurchaseAction = onPurchaseAction
     }
     
@@ -110,6 +125,8 @@ extension LockedFeatureConfiguration {
     ///   - title: A `String` to use as the title.
     ///   - titleColor: The `Color` to use for the title.
     ///   - enableIfLegacyUser: A `Bool` indicating whether legacy users should have access to the feature.
+    ///   - contentOrder: The order that content should be displayed in the purchase view.
+    ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
     ///   - onPurchaseAction: An optional action to perform when a transaction is completed. This is separate
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   will be performed. If an action is set, you will need to also dismiss the view. This
@@ -118,6 +135,7 @@ extension LockedFeatureConfiguration {
         verbatim title: String,
         titleColor: Color = Color.primary,
         enableIfLegacyUser: Bool = false,
+        contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder,
         onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
     ) {
         self.titleKey = nil
@@ -125,6 +143,7 @@ extension LockedFeatureConfiguration {
         self.systemImage = nil
         self.titleColor = titleColor
         self.enableIfLegacyUser = enableIfLegacyUser
+        self.contentOrder = contentOrder
         self.onPurchaseAction = onPurchaseAction
     }
 

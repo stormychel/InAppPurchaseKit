@@ -208,7 +208,8 @@ let configuration = LockedFeatureConfiguration(
     "Title",
     systemImage: "app",
     titleColor: .primary,
-    enableIfLegacy: false
+    enableIfLegacy: false,
+    contentOrder: InAppPurchaseViewContent.defaultOrder
 ) {
     print("Purchased")
 }
@@ -342,11 +343,12 @@ This is a view that displays the primary tier and the ability to show the in-app
 
 ```swift
 LockedInAppPurchaseFeatureView(
+    contentOrder: InAppPurchaseViewContent.defaultOrder,
     onPurchase: onPurchaseAction
 )
 ```
 
-It includes an action to perform when purchased.
+It includes an action to perform when purchased and the content order.
 
 ### LockedInAppPurchaseWidgetView
 
@@ -368,11 +370,12 @@ This is a view that displays the in-app purchase name and the ability to show th
 
 ```swift
 InAppPurchaseSettingsRow(
+    contentOrder: InAppPurchaseViewContent.defaultOrder,
     onPurchase: onPurchaseAction
 )
 ```
 
-It includes an action to perform when purchased. It looks best in a list.
+It includes an action to perform when purchased and the content order. It looks best in a list.
 
 ### TipJarView
 
