@@ -14,6 +14,10 @@ public struct LockedInAppPurchaseFeatureView: View {
     /// The order that content should be displayed in the purchase view.
     private let contentOrder: [InAppPurchaseViewContent]
 
+    /// An optional action to perform when the Learn More button is pressed. If
+    /// not specified the purchase view will open as a sheet.
+    private let learnMoreAction: (@Sendable () -> Void)?
+
     /// An optional action to perform when a transaction is completed. This is separate
     /// to the action set in `InAppPurchaseKitConfiguration` but both
     /// will be performed. If an action is set, you will need to also dismiss the view. This
@@ -27,14 +31,18 @@ public struct LockedInAppPurchaseFeatureView: View {
     /// - Parameters:
     ///   - contentOrder: The order that content should be displayed in the purchase view.
     ///   Defaults to `InAppPurchaseViewContent.defaultOrder`.
+    ///   - learnMoreAction: An optional action to perform when the Learn More button is pressed. If
+    ///   not specified the purchase view will open as a sheet. Defaults to `nil`.
     ///   - onPurchaseAction: An optional action to perform when a transaction is completed. This is separate
     ///   to the action set in `InAppPurchaseKitConfiguration` but both
     ///   is handled automatically when no action is set. Defaults to `nil`.
     public init(
         contentOrder: [InAppPurchaseViewContent] = InAppPurchaseViewContent.defaultOrder,
+        learnMoreAction: (@Sendable () -> Void)? = nil,
         onPurchase onPurchaseAction: (@Sendable () -> Void)? = nil
     ) {
         self.contentOrder = contentOrder
+        self.learnMoreAction = learnMoreAction
         self.onPurchaseAction = onPurchaseAction
     }
 
@@ -58,7 +66,11 @@ public struct LockedInAppPurchaseFeatureView: View {
                     #endif
 
                 Button {
-                    showingPurchaseSheet = true
+                    if let learnMoreAction {
+                        learnMoreAction()
+                    } else {
+                        showingPurchaseSheet = true
+                    }
                 } label: {
                     Text("Learn More")
                         #if os(visionOS)
