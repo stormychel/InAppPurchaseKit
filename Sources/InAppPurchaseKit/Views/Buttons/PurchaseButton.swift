@@ -38,12 +38,24 @@ struct PurchaseButton: View {
         if #available(iOS 26.0, macOS 26.0, watchOS 26.0, *) {
             purchaseButton
                 .buttonStyle(.glassProminent)
+                #if os(iOS)
+                .controlSize(.extraLarge)
+                #elseif os(macOS)
+                .controlSize(.large)
+                #endif
+                .tint(inAppPurchase.configuration.tintColor)
         } else {
             purchaseButton
                 .buttonStyle(.borderedProminent)
+                #if os(iOS) || os(macOS)
+                .controlSize(.large)
+                #endif
+                .tint(inAppPurchase.configuration.tintColor)
         }
         #else
         purchaseButton
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
         #endif
     }
 
@@ -68,24 +80,14 @@ struct PurchaseButton: View {
                 .frame(maxWidth: 400)
                 #elseif os(macOS)
                 .font(.system(.body, weight: .medium))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 20)
+                .padding(.horizontal)
                 .frame(maxWidth: 160)
                 #elseif os(tvOS)
-                .frame(maxWidth: 400)
+                .frame(maxWidth: 600)
                 #elseif os(visionOS)
                 .frame(maxWidth: 400)
                 #endif
         }
-        #if os(iOS)
-        .controlSize(.extraLarge)
-        .tint(inAppPurchase.configuration.tintColor)
-        #elseif os(macOS)
-        .controlSize(.large)
-        .tint(inAppPurchase.configuration.tintColor)
-        #elseif os(watchOS)
-        .tint(inAppPurchase.configuration.tintColor)
-        #endif
         .disabled(inAppPurchase.transactionState != .pending)
         .overlay {
             if inAppPurchase.transactionState == .purchasing {
