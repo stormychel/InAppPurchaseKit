@@ -27,11 +27,30 @@ struct AdditionalOptionsView: View {
 
     var body: some View {
         #if os(macOS)
-        if #available(macOS 15.0, *) {
+        if #available(macOS 27.0, *) {
+            additionalOptionsView
+                .offerCodeRedemption(options: [], isPresented: $showingRedeemSheet) { result in
+                    Task {
+                        await inAppPurchase.redeemedCode(with: result)
+                    }
+                }
+        } else if #available(macOS 15.0, *) {
             additionalOptionsView
                 .offerCodeRedemption(isPresented: $showingRedeemSheet)
         } else {
             additionalOptionsView
+        }
+        #elseif os(iOS) || os(visionOS)
+        if #available(anyAppleOS 27.0, *) {
+            additionalOptionsView
+                .offerCodeRedemption(options: [], isPresented: $showingRedeemSheet) { result in
+                    Task {
+                        await inAppPurchase.redeemedCode(with: result)
+                    }
+                }
+        } else {
+            additionalOptionsView
+                .offerCodeRedemption(isPresented: $showingRedeemSheet)
         }
         #else
         additionalOptionsView
@@ -89,7 +108,6 @@ struct AdditionalOptionsView: View {
                     }
                 }
             }
-            .offerCodeRedemption(isPresented: $showingRedeemSheet)
 
             #elseif os(macOS)
             ViewThatFits {
@@ -161,6 +179,9 @@ struct AdditionalOptionsView: View {
         #else
         .sheet(isPresented: $showingTipJarSheet) {
             TipJarView(includeNavigationStack: true)
+                #if os(macOS)
+                .frame(width: 650)
+                #endif
                 .environment(inAppPurchase)
         }
         #endif

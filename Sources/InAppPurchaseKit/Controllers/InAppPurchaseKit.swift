@@ -673,7 +673,66 @@ public final class InAppPurchaseKit: NSObject {
             return nil
         }
     }
-    
+
+    /// Informs InAppPurchaseKit that a code was redeemed by the user.
+    /// - Parameter result: The result from redeeming a code..
+    /// - Returns: An optional `Transaction` if the user purchased the product.
+    @discardableResult
+    public func redeemedCode(
+        with result: Result<VerificationResult<Transaction>, any Error>
+    ) async -> Transaction? {
+        transactionState = .purchasing
+
+        do {
+            switch result {
+            case .success(let verification):
+                let transaction = try checkVerified(verification)
+
+                if (configuration.tipJarTiers?.allTierIDs ?? []).contains(where: {
+                    $0 == transaction.productID
+                }) {
+                    await transaction.finish()
+                    transactionState = .purchased(.tipJar)
+
+                } else {
+                    await updatePurchasedTiers(transaction)
+                    await transaction.finish()
+
+                    transactionState = .purchased(.subscription)
+
+                    if let purchaseCompletionBlock = configuration.purchaseCompletionBlock,
+                       let product = productsLoadState.fetchProduct(
+                        for: transaction.productID
+                       ) {
+                        purchaseCompletionBlock(product)
+                    }
+                }
+
+                #if os(iOS) || os(visionOS)
+                if let scene = UIApplication.shared.connectedScenes.first(where: {
+                    $0.activationState == .foregroundActive
+                }) as? UIWindowScene {
+                    SKStoreReviewController.requestReview(in: scene)
+                }
+
+                #elseif os(macOS)
+                SKStoreReviewController.requestReview()
+                #endif
+
+                return transaction
+
+
+            case .failure(_):
+                transactionState = .pending
+                return nil
+            }
+
+        } catch {
+            transactionState = .pending
+            return nil
+        }
+    }
+
     /// Restores the purchases for the user.
     public func restorePurchases() async {
         try? await AppStore.sync()

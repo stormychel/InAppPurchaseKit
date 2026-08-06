@@ -239,9 +239,9 @@ struct TierSelectionButton: View {
 
     private var backgroundCornerRadius: CGFloat {
         #if os(macOS)
-        return 6
-        #else
         return 12
+        #else
+        return 24
         #endif
     }
 

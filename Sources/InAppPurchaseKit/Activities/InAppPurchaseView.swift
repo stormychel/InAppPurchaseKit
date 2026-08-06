@@ -68,9 +68,6 @@ public struct InAppPurchaseView: View {
             if includeNavigationStack {
                 NavigationStack {
                     subscriptionView
-                        #if os(macOS)
-                        .frame(width: 650, height: 500)
-                        #endif
                 }
             } else {
                 subscriptionView

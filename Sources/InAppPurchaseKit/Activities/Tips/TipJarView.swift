@@ -44,9 +44,6 @@ public struct TipJarView: View {
             if includeNavigationStack {
                 NavigationStack {
                     tipJarView
-                        #if os(macOS)
-                        .frame(width: 650, height: 500)
-                        #endif
                 }
             } else {
                 tipJarView
