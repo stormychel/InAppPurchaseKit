@@ -28,7 +28,11 @@ public final class InAppPurchaseKit: NSObject {
     /// A task to listen for updates to the transaction state.
     @ObservationIgnored
     private var updateListenerTask: Task<Void, Error>? = nil
-    
+
+    /// A task to listen for purchase intent updates.
+    @ObservationIgnored
+    private var purchaseIntentTask: Task<Void, Error>? = nil
+
     /// An enum containing the load state of the products.
     public private(set) var productsLoadState: ProductsLoadState = .pending {
         didSet {
@@ -38,10 +42,6 @@ public final class InAppPurchaseKit: NSObject {
 
     /// An enum containing the current purchase state for the user.
     public private(set) var purchaseState: PurchaseState = .pending
-
-    /// A `Bool` indicating whether promoted purchases are currently being checked.
-    @ObservationIgnored
-    private var checkingPromotedPurchase: Bool = false
     
     /// An enum containing the current transaction state.
     public var transactionState: TransactionState = .pending {
@@ -72,9 +72,12 @@ public final class InAppPurchaseKit: NSObject {
 
         updateListenerTask = listenForTransactions()
 
+        #if os(iOS) || os(macOS)
+        purchaseIntentTask = observePurchaseIntents()
+        #endif
+
         Task {
             await updateProductLoadState()
-            await checkForExternalPurchases()
         }
     }
 
@@ -227,19 +230,15 @@ public final class InAppPurchaseKit: NSObject {
     // MARK: - External Purchases
     
     /// Checks if the user has made a purchase externally e.g. via the App Store.
-    public func checkForExternalPurchases() async {
-        guard checkingPromotedPurchase == false else { return }
-
-        checkingPromotedPurchase = true
-
-        #if os(iOS) || os(macOS)
-        for await purchaseIntent in PurchaseIntent.intents {
-            await purchase(purchaseIntent.product)
+    #if os(iOS) || os(macOS)
+    private func observePurchaseIntents() -> Task<Void, Error> {
+        Task.detached {
+            for await purchaseIntent in PurchaseIntent.intents {
+                await self.purchase(purchaseIntent.product)
+            }
         }
-        #endif
-
-        checkingPromotedPurchase = false
     }
+    #endif
 
 
     // MARK: - Purchase Status
@@ -746,7 +745,7 @@ public final class InAppPurchaseKit: NSObject {
     /// Creates a task to listen for transactions.
     /// - Returns: The task to listen to transactions.
     private func listenForTransactions() -> Task<Void, Error> {
-        return Task.detached {
+        Task.detached {
             for await result in Transaction.updates {
                 do {
                     let transaction = try await self.checkVerified(result)
