@@ -74,7 +74,7 @@ struct TiersView: View {
                         #if os(iOS) || os(visionOS)
                         manageSubscriptionButton
                         #elseif os(watchOS)
-                        Text("You can manage this subscription on your iPhone.")
+                        Text("You can manage this subscription on your iPhone.", bundle: .module)
                             .font(.footnote)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
