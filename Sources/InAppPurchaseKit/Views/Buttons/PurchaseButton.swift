@@ -43,14 +43,12 @@ struct PurchaseButton: View {
                 #elseif os(macOS)
                 .controlSize(.large)
                 #endif
-                .tint(inAppPurchase.configuration.tintColor)
         } else {
             purchaseButton
                 .buttonStyle(.borderedProminent)
                 #if os(iOS) || os(macOS)
                 .controlSize(.large)
                 #endif
-                .tint(inAppPurchase.configuration.tintColor)
         }
         #else
         purchaseButton
@@ -88,6 +86,9 @@ struct PurchaseButton: View {
                 .frame(maxWidth: 400)
                 #endif
         }
+        #if os(iOS) || os(macOS) || os(watchOS)
+        .tint(inAppPurchase.configuration.tintColor)
+        #endif
         .disabled(inAppPurchase.transactionState != .pending)
         .overlay {
             if inAppPurchase.transactionState == .purchasing {
