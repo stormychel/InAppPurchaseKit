@@ -44,6 +44,9 @@ public struct TipJarView: View {
             if includeNavigationStack {
                 NavigationStack {
                     tipJarView
+                        #if os(macOS)
+                        .frame(width: 650, height: 500)
+                        #endif
                 }
             } else {
                 tipJarView
@@ -172,7 +175,6 @@ public struct TipJarView: View {
         #elseif os(macOS)
         .formStyle(.grouped)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .frame(height: 500)
         #endif
         .toolbar {
             #if !os(tvOS)
