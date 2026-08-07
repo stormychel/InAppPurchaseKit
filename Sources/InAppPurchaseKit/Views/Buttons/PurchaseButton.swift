@@ -93,9 +93,7 @@ struct PurchaseButton: View {
         .overlay {
             if inAppPurchase.transactionState == .purchasing {
                 ProgressView()
-                    #if os(macOS)
                     .controlSize(.small)
-                    #endif
             }
         }
     }
