@@ -8,9 +8,9 @@
 import Foundation
 
 public struct PurchaseTierConfiguration: Identifiable, Hashable, Sendable {
-    /// A `String` containing the ID of the tier.
-    public let id: String
-    
+    /// An optional `String` containing the ID of the tier.
+    public let id: String?
+
     /// An array of `String` containing IDs that are also associated with this tier in the past.
     public let alternateIDs: [String]
     
@@ -29,7 +29,7 @@ public struct PurchaseTierConfiguration: Identifiable, Hashable, Sendable {
     
     /// Creates a new `PurchaseTierConfiguration` object.
     /// - Parameters:
-    ///   - id: A `String` containing the ID of the tier.
+    ///   - id: An optional `String` containing the ID of the tier.
     ///   - alternateIDs: An array of `String` containing IDs that are also associated with this tier in the past.
     ///   - alwaysVisible: A `Bool` indicating whether this tier should always be shown regardless of whether
     ///   hiding/showing all options.
@@ -39,7 +39,7 @@ public struct PurchaseTierConfiguration: Identifiable, Hashable, Sendable {
     ///   showing purchasing options to users if they meet the legacy user criteria in the main
     ///   configuration.
     public init(
-        id: String,
+        id: String?,
         alternateIDs: [String]? = nil,
         alwaysVisible: Bool,
         isPrimary: Bool = false,

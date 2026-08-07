@@ -23,7 +23,7 @@ public enum PurchaseTier: Identifiable, Hashable, Sendable {
         }
     }
 
-    public var id: String {
+    public var id: String? {
         return configuration.id
     }
 
@@ -35,8 +35,12 @@ public enum PurchaseTier: Identifiable, Hashable, Sendable {
         return configuration.alternateIDs
     }
 
-    var tierIDs: [String] {
-        var ids = [id]
+    var tierIDs: [String]? {
+        var ids: [String] = []
+
+        if let id {
+            ids.append(id)
+        }
 
         if let legacyID {
             ids.append(legacyID)
@@ -44,7 +48,7 @@ public enum PurchaseTier: Identifiable, Hashable, Sendable {
 
         ids += alternateIDs
 
-        return ids
+        return ids.isEmpty ? nil : ids
     }
 
     public var title: String {

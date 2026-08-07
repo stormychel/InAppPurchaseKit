@@ -63,7 +63,7 @@ public struct PurchaseTiers: Sendable {
     }
 
     var allTierIDs: [String] {
-        return orderedTiers.flatMap { $0.tierIDs }
+        return orderedTiers.flatMap { $0.tierIDs ?? [] }
     }
 
 

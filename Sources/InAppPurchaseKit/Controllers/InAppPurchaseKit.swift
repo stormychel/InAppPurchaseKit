@@ -216,7 +216,11 @@ public final class InAppPurchaseKit: NSObject {
             return product
         }
 
-        return productsLoadState.fetchProduct(for: tier.id)
+        if let id = tier.id {
+            return productsLoadState.fetchProduct(for: id)
+        } else {
+            return nil
+        }
     }
     
     /// Fetches a StoreKit product based on a Tip Jar tier.
@@ -373,11 +377,12 @@ public final class InAppPurchaseKit: NSObject {
         }
 
         for tier in configuration.tiers.orderedTiers {
-            guard tier.isSubscription else {
+            guard tier.isSubscription,
+                  let tierIDs = tier.tierIDs else {
                 continue
             }
 
-            for id in tier.tierIDs {
+            for id in tierIDs {
                 guard let result = await Transaction.latest(for: id),
                       let transaction = try? checkVerified(result),
                       transactionIsExpiredSubscription(transaction) else {
@@ -483,8 +488,9 @@ public final class InAppPurchaseKit: NSObject {
         var purchasedTiers: Set<PurchaseTier> = []
 
         for tier in configuration.tiers.orderedTiers {
-            if purchasedTiers.contains(tier) == false {
-                for id in tier.tierIDs {
+            if purchasedTiers.contains(tier) == false,
+               let tierIDs = tier.tierIDs {
+                for id in tierIDs {
                     if (try? await fetchTransactionState(for: id)) ?? false {
                         purchasedTiers.insert(tier)
                     }
@@ -509,13 +515,13 @@ public final class InAppPurchaseKit: NSObject {
 
         if transactionIsActive(transaction) {
             if let tier = configuration.tiers.orderedTiers.first(where: {
-                $0.tierIDs.contains(transaction.productID)
+                ($0.tierIDs ?? []).contains(transaction.productID)
             }) {
                 purchasedTiers.insert(tier)
             }
         } else {
             let tiers = purchasedTiers.filter {
-                $0.tierIDs.contains(transaction.productID)
+                ($0.tierIDs ?? []).contains(transaction.productID)
             }
 
             for tier in tiers {
