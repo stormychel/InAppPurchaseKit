@@ -90,6 +90,7 @@ public struct InAppPurchaseView: View {
                             ignorePurchaseState: $ignorePurchaseState
                         )
                     }
+                    .scrollEdgeEffectHidden(true, for: .bottom)
             } else {
                 subscriptionViewContents
                     .safeAreaInset(edge: .bottom) {
